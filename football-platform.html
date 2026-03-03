@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ ملاعب | Malaab - Football Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00FF87;
+    --dark-green: #00C96B;
+    --black: #080C0A;
+    --dark: #0D1510;
+    --card: #111A14;
+    --card2: #162019;
+    --border: #1E2E22;
+    --text: #E8F5EC;
+    --muted: #6B8A72;
+    --accent: #FFD93D;
+    --red: #FF4757;
+    --blue: #3742FA;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  .cursor {
+    width: 20px; height: 20px;
+    background: var(--green);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s, width 0.2s, height 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-trail {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.4;
+    transition: all 0.15s;
+  }
+
+  /* Noise Texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* NAVBAR */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: rgba(8,12,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo span { color: var(--text); }
+
+  .nav-links {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+    cursor: none;
+  }
+  .nav-links a:hover { color: var(--green); }
+
+  .lang-toggle {
+    background: var(--border);
+    border: none;
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: none;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+  .lang-toggle:hover { background: var(--green); color: var(--black); }
+
+  .btn-nav {
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 900;
+    font-size: 0.95rem;
+    cursor: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-nav:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,255,135,0.3);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 120px 40px 60px;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,135,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,135,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+  }
+
+  .hero-ball {
+    position: absolute;
+    font-size: 300px;
+    opacity: 0.04;
+    animation: float 8s ease-in-out infinite;
+    user-select: none;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(180deg); }
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,255,135,0.1);
+    border: 1px solid rgba(0,255,135,0.3);
+    color: var(--green);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    animation: fadeUp 0.8s ease forwards;
+  }
+  .badge-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.5); }
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 12vw, 10rem);
+    line-height: 0.9;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+  .hero h1 .green { color: var(--green); }
+
+  .hero-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .hero p {
+    max-width: 600px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 50px;
+    font-size: 1.05rem;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    padding: 16px 40px;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    cursor: none;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .btn-primary:hover::before { transform: translateX(0); opacity: 0.1; }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,255,135,0.4); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 16px 40px;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: none;
+    transition: all 0.3s;
+  }
+  .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+  .hero-stats {
+    display: flex;
+    gap: 60px;
+    margin-top: 80px;
+    animation: fadeUp 0.8s ease 0.5s both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--green);
+    line-height: 1;
+  }
+  .stat-label { color: var(--muted); font-size: 0.8rem; letter-spacing: 2px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION */
+  section { padding: 100px 40px; max-width: 1400px; margin: 0 auto; }
+
+  .section-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+  }
+
+  .section-title .accent { color: var(--green); }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2px;
+    margin-top: 60px;
+    border: 2px solid var(--border);
+  }
+
+  .feature-card {
+    background: var(--card);
+    padding: 50px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    cursor: none;
+  }
+  .feature-card:hover { background: var(--card2); }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--green);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+  .feature-card:hover::before { transform: scaleX(1); }
+
+  .feature-icon {
+    font-size: 3rem;
+    margin-bottom: 24px;
+    display: block;
+    filter: grayscale(0.3);
+    transition: transform 0.3s;
+  }
+  .feature-card:hover .feature-icon { transform: scale(1.2) rotate(-5deg); }
+
+  .feature-card h3 {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .feature-card p {
+    color: var(--muted);
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    margin-top: 20px;
+    background: rgba(0,255,135,0.1);
+    border: 1px solid rgba(0,255,135,0.2);
+    color: var(--green);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  /* HOW IT WORKS */
+  .how-section {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--black) 100%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 100px 0;
+  }
+  .how-section > div { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0;
+    margin-top: 60px;
+    position: relative;
+  }
+
+  .step {
+    padding: 40px;
+    position: relative;
+    border-left: 1px solid var(--border);
+  }
+  .step:first-child { border-left: none; }
+
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 20px;
+    transition: color 0.3s;
+  }
+  .step:hover .step-num { color: var(--green); }
+
+  .step-icon { font-size: 2rem; margin-bottom: 16px; }
+  .step h3 { font-size: 1.2rem; font-weight: 900; margin-bottom: 10px; }
+  .step p { color: var(--muted); line-height: 1.6; font-size: 0.9rem; }
+
+  /* LEAGUE SECTION */
+  .league-section { background: var(--black); }
+
+  .league-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .league-visual {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  .league-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .league-name { font-size: 1.3rem; font-weight: 700; letter-spacing: 2px; }
+  .league-badge {
+    background: var(--accent);
+    color: var(--black);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 900;
+  }
+
+  .standings-row {
+    display: grid;
+    grid-template-columns: 30px 1fr 40px 40px 40px 50px;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.9rem;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  .standings-row:hover { background: rgba(0,255,135,0.03); }
+  .standings-row.header { color: var(--muted); font-size: 0.75rem; letter-spacing: 2px; }
+  .standings-row .rank { color: var(--muted); }
+  .standings-row .team-name { font-weight: 700; }
+  .standings-row.top .team-name { color: var(--green); }
+  .standings-row .pts {
+    font-weight: 900;
+    color: var(--green);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+  }
+  .standings-row .center { text-align: center; color: var(--muted); }
+
+  .league-features { display: flex; flex-direction: column; gap: 20px; }
+  .league-feature {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    background: var(--dark);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s;
+  }
+  .league-feature:hover { border-color: var(--green); }
+  .lf-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .lf-title { font-weight: 900; margin-bottom: 4px; }
+  .lf-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
+
+  /* PLAYER CARD */
+  .players-section { padding: 100px 40px; }
+
+  .cards-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 60px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+  }
+  .cards-row::-webkit-scrollbar { height: 4px; }
+  .cards-row::-webkit-scrollbar-track { background: var(--dark); }
+  .cards-row::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+
+  .player-card {
+    background: linear-gradient(145deg, #1a2e1f, #0d1a10);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px 24px;
+    min-width: 200px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    flex-shrink: 0;
+    cursor: none;
+  }
+  .player-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 60%;
+    background: linear-gradient(135deg, rgba(0,255,135,0.08), transparent);
+  }
+  .player-card:hover {
+    transform: translateY(-8px) rotate(-1deg);
+    box-shadow: 0 20px 60px rgba(0,255,135,0.15);
+  }
+
+  .card-rating {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .card-pos {
+    font-size: 0.75rem;
+    color: var(--green);
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+  }
+  .card-avatar {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--green), var(--dark-green));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 16px;
+    border: 3px solid rgba(0,255,135,0.3);
+  }
+  .card-name { font-weight: 900; font-size: 1.1rem; margin-bottom: 4px; }
+  .card-team { color: var(--muted); font-size: 0.8rem; margin-bottom: 20px; }
+  .card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .cs { text-align: center; }
+  .cs-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--text); }
+  .cs-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; }
+
+  /* MAP SECTION */
+  .map-section {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .map-section > div { max-width: 1400px; margin: 0 auto; padding: 100px 40px; }
+
+  .map-container {
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .map-visual {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .map-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(0,255,135,0.05) 0%, transparent 70%);
+  }
+
+  .map-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,135,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,135,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .map-pins {
+    position: relative;
+    z-index: 2;
+    min-height: 320px;
+  }
+
+  .map-pin {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: none;
+    transition: transform 0.2s;
+    animation: pinDrop 0.5s ease backwards;
+  }
+  .map-pin:hover { transform: scale(1.2); }
+  @keyframes pinDrop {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .pin-dot {
+    width: 16px; height: 16px;
+    background: var(--green);
+    border-radius: 50%;
+    border: 3px solid var(--black);
+    box-shadow: 0 0 20px rgba(0,255,135,0.6);
+    animation: pingPulse 2s infinite;
+  }
+  @keyframes pingPulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,255,135,0.6); }
+    70% { box-shadow: 0 0 0 15px rgba(0,255,135,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,255,135,0); }
+  }
+
+  .pin-label {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-top: 6px;
+    white-space: nowrap;
+    color: var(--text);
+  }
+
+  .nearby-list { display: flex; flex-direction: column; gap: 12px; }
+  .nearby-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+    cursor: none;
+  }
+  .nearby-item:hover { border-color: var(--green); }
+  .ni-info { display: flex; align-items: center; gap: 14px; }
+  .ni-avatar {
+    width: 44px; height: 44px;
+    background: var(--dark);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    border: 1px solid var(--border);
+  }
+  .ni-name { font-weight: 900; font-size: 0.95rem; }
+  .ni-dist { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+  .ni-challenge {
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: none;
+    transition: transform 0.2s;
+  }
+  .ni-challenge:hover { transform: scale(1.05); }
+
+  /* CTA */
+  .cta-section {
+    text-align: center;
+    padding: 120px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '⚽';
+    position: absolute;
+    font-size: 600px;
+    opacity: 0.02;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    user-select: none;
+  }
+
+  .cta-section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: 4px;
+    margin-bottom: 24px;
+  }
+  .cta-section p { color: var(--muted); font-size: 1.1rem; margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(10px);
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 50px;
+    max-width: 550px;
+    width: 100%;
+    position: relative;
+    transform: translateY(30px);
+    transition: transform 0.3s;
+  }
+  .modal-overlay.active .modal { transform: translateY(0); }
+
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: none;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: var(--red); border-color: var(--red); color: white; }
+
+  .modal h3 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .modal-sub { color: var(--muted); margin-bottom: 30px; font-size: 0.9rem; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    outline: none;
+    cursor: none;
+  }
+  .form-input:focus { border-color: var(--green); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .color-picker-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .color-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: none;
+    border: 3px solid transparent;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .color-dot.selected, .color-dot:hover {
+    border-color: white;
+    transform: scale(1.1);
+  }
+
+  .form-submit {
+    width: 100%;
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    cursor: none;
+    margin-top: 10px;
+    transition: all 0.3s;
+  }
+  .form-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,255,135,0.4); }
+
+  /* SUCCESS */
+  .success-msg {
+    text-align: center;
+    padding: 40px 0;
+    display: none;
+  }
+  .success-icon { font-size: 4rem; margin-bottom: 20px; }
+  .success-msg h3 { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; }
+  .success-msg p { color: var(--muted); }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    padding: 60px 40px 30px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--green);
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+  }
+  .footer-links {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    list-style: none;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--green); }
+  .footer-copy { color: var(--muted); font-size: 0.8rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section, .players-section { padding: 70px 20px; }
+    .hero-stats { gap: 30px; }
+    .league-card { grid-template-columns: 1fr; }
+    .map-container { grid-template-columns: 1fr; }
+    .modal { padding: 30px 20px; }
+    footer { padding: 40px 20px 20px; }
+    .how-section > div { padding: 70px 20px; }
+    .map-section > div { padding: 70px 20px; }
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* NOTIFICATION */
+  .notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--card);
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    padding: 16px 20px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(200%);
+    transition: transform 0.3s;
+    max-width: 300px;
+  }
+  .notification.show { transform: translateX(0); }
+  .notif-icon { font-size: 1.5rem; }
+  .notif-text { font-size: 0.9rem; }
+  .notif-title { font-weight: 900; margin-bottom: 2px; }
+  .notif-sub { color: var(--muted); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<!-- Notification -->
+<div class="notification" id="notification">
+  <div class="notif-icon">⚡</div>
+  <div class="notif-text">
+    <div class="notif-title" id="notifTitle">تحدي جديد!</div>
+    <div class="notif-sub" id="notifSub">فريق قريب منك يبحث عن مباراة</div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">⚽ <span>ملاعب</span>MALAAB</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#features" data-ar="الميزات" data-en="Features">الميزات</a></li>
+    <li><a href="#leagues" data-ar="الدوريات" data-en="Leagues">الدوريات</a></li>
+    <li><a href="#players" data-ar="اللاعبون" data-en="Players">اللاعبون</a></li>
+    <li><a href="#nearby" data-ar="القريبون" data-en="Nearby">القريبون</a></li>
+  </ul>
+  <div style="display:flex;gap:12px;align-items:center">
+    <button class="lang-toggle" onclick="toggleLang()" id="langBtn">EN</button>
+    <button class="btn-nav" onclick="openModal('create')" id="navCta">أنشئ فريقك</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="max-width:100%;padding-top:120px;">
+  <div class="hero-grid"></div>
+  <div class="hero-ball">⚽</div>
+
+  <div class="hero-badge">
+    <div class="badge-dot"></div>
+    <span id="badgeText">المنصة الأولى لكرة القدم الهواة</span>
+  </div>
+
+  <h1 id="heroTitle">ملاعب<br><span class="green">MALAAB</span></h1>
+  <div class="hero-sub" id="heroSub">ORGANIZE · COMPETE · DOMINATE</div>
+  <p id="heroDesc">أنشئ فريقك، تحدَّ الفرق القريبة منك، وأنشئ دوريات محلية احترافية. كرة القدم الشعبية أصبحت منظمة ومثيرة!</p>
+
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="openModal('create')" id="heroBtnCreate">⚽ أنشئ فريقك الآن</button>
+    <button class="btn-outline" onclick="openModal('challenge')" id="heroBtnChallenge">⚡ تحدَّ فريقاً</button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num" id="statTeams">0</div>
+      <div class="stat-label" id="statTeamsLabel">فريق مسجل</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statMatches">0</div>
+      <div class="stat-label" id="statMatchesLabel">مباراة لُعبت</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statLeagues">0</div>
+      <div class="stat-label" id="statLeaguesLabel">دوري نشط</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="max-width:1400px">
+  <span class="section-tag" id="featTag">الميزات</span>
+  <h2 class="section-title reveal" id="featTitle">كل شيء تحتاجه<br><span class="accent">في مكان واحد</span></h2>
+
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <span class="feature-icon">🏟️</span>
+      <h3 id="f1t">إنشاء الفريق</h3>
+      <p id="f1d">أنشئ فريقك بالاسم والشعار والألوان الخاصة بك. أضف لاعبيك وحدد ملعبك المفضل</p>
+      <span class="feature-tag">أساسي</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📍</span>
+      <h3 id="f2t">الفرق القريبة</h3>
+      <p id="f2d">اكتشف الفرق القريبة من موقعك الجغرافي وتحداها مباشرة. كن البطل في منطقتك</p>
+      <span class="feature-tag">جديد</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏆</span>
+      <h3 id="f3t">إنشاء الدوريات</h3>
+      <p id="f3d">أنشئ دوريات محلية بين فرق المنطقة مع جداول مباريات تلقائية ونظام نقاط احترافي</p>
+      <span class="feature-tag">ممتاز</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📊</span>
+      <h3 id="f4t">إحصائيات اللاعبين</h3>
+      <p id="f4d">تتبع إحصائيات كل لاعب: أهداف، تمريرات، ظهورات، بطاقات صفراء وحمراء. سجل تاريخي كامل</p>
+      <span class="feature-tag">تحليلات</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🤖</span>
+      <h3 id="f5t">مدرب ذكاء اصطناعي</h3>
+      <p id="f5d">احصل على توصيات تكتيكية مبنية على أداء فريقك. اخترلك التشكيلة المثلى قبل كل مباراة</p>
+      <span class="feature-tag">AI مميز</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎴</span>
+      <h3 id="f6t">بطاقات FIFA اللاعبين</h3>
+      <p id="f6d">كل لاعب له بطاقة مميزة بتقييم وإحصائيات مثل FIFA. شارك بطاقتك واستعرض تقييمك</p>
+      <span class="feature-tag">حصري</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<div class="how-section">
+  <div>
+    <span class="section-tag" id="howTag">كيف يعمل</span>
+    <h2 class="section-title reveal" id="howTitle">أربع خطوات<br><span class="accent">للبطولة</span></h2>
+
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-icon">📝</div>
+        <h3 id="s1t">سجّل وأنشئ</h3>
+        <p id="s1d">سجّل حساباً وأنشئ فريقك في دقيقتين فقط</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-icon">👥</div>
+        <h3 id="s2t">أضف اللاعبين</h3>
+        <p id="s2d">ادعُ أصدقاءك وابنِ تشكيلتك المفضلة</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-icon">⚡</div>
+        <h3 id="s3t">تحدَّ وتنافس</h3>
+        <p id="s3d">ابحث عن فرق قريبة وأرسل تحديات المباراة</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-icon">🏅</div>
+        <h3 id="s4t">تصدَّر وانتصر</h3>
+        <p id="s4d">سجل النتائج وتصدر جدول منطقتك وارفع الكأس</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEAGUES -->
+<section id="leagues" style="max-width:1400px">
+  <span class="section-tag" id="leagTag">الدوريات</span>
+  <h2 class="section-title reveal" id="leagTitle">دوري منطقتك<br><span class="accent">بين يديك</span></h2>
+
+  <div class="league-card reveal">
+    <div class="league-visual">
+      <div class="league-header">
+        <div class="league-name" id="leagName">دوري المنطقة الشمالية</div>
+        <div class="league-badge" id="leagSeason">موسم 2025</div>
+      </div>
+
+      <div class="standings-row header">
+        <div>#</div>
+        <div id="thTeam">الفريق</div>
+        <div class="center" id="thW">ف</div>
+        <div class="center" id="thD">ت</div>
+        <div class="center" id="thL">خ</div>
+        <div class="center" id="thPts">نقاط</div>
+      </div>
+
+      <div class="standings-row top">
+        <div class="rank">1</div>
+        <div class="team-name">🔥 نسور الشمال</div>
+        <div class="center">8</div><div class="center">2</div><div class="center">1</div>
+        <div class="pts">26</div>
+      </div>
+      <div class="standings-row">
+        <div class="rank">2</div>
+        <div class="team-name">⚡ الصواعق</div>
+        <div class="center">7</div><div class="center">3</div><div class="center">1</div>
+        <div class="pts">24</div>
+      </div>
+      <div class="standings-row">
+        <div class="rank">3</div>
+        <div class="team-name">🦁 الأسود</div>
+        <div class="center">6</div><div class="center">2</div><div class="center">3</div>
+        <div class="pts">20</div>
+      </div>
+      <div class="standings-row">
+        <div class="rank">4</div>
+        <div class="team-name">🐺 الذئاب</div>
+        <div class="center">5</div><div class="center">3</div><div class="center">3</div>
+        <div class="pts">18</div>
+      </div>
+      <div class="standings-row">
+        <div class="rank">5</div>
+        <div class="team-name">🦅 العقبان</div>
+        <div class="center">4</div><div class="center">2</div><div class="center">5</div>
+        <div class="pts">14</div>
+      </div>
+    </div>
+
+    <div class="league-features">
+      <div class="league-feature">
+        <div class="lf-icon">🗓️</div>
+        <div>
+          <div class="lf-title" id="lf1t">جدول تلقائي</div>
+          <div class="lf-desc" id="lf1d">يتولى النظام إنشاء جدول المباريات ويرتب المواعيد بشكل تلقائي</div>
+        </div>
+      </div>
+      <div class="league-feature">
+        <div class="lf-icon">🏅</div>
+        <div>
+          <div class="lf-title" id="lf2t">نظام النقاط</div>
+          <div class="lf-desc" id="lf2d">فوز = 3 نقاط، تعادل = 1، خسارة = 0. مع ترتيب تلقائي وفارق الأهداف</div>
+        </div>
+      </div>
+      <div class="league-feature">
+        <div class="lf-icon">📱</div>
+        <div>
+          <div class="lf-title" id="lf3t">إشعارات المباريات</div>
+          <div class="lf-desc" id="lf3d">تذكير قبل المباريات وتحديث النتائج فور انتهاء كل مباراة</div>
+        </div>
+      </div>
+      <div class="league-feature">
+        <div class="lf-icon">🥇</div>
+        <div>
+          <div class="lf-title" id="lf4t">حفل التتويج</div>
+          <div class="lf-desc" id="lf4d">في نهاية الدوري يحصل البطل على شهادة رقمية وترتيب على مستوى المنطقة</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYER CARDS -->
+<section id="players" class="players-section" style="max-width:100%;padding:100px 40px">
+  <span class="section-tag" id="playersTag">اللاعبون</span>
+  <h2 class="section-title reveal" id="playersTitle">بطاقات <span class="accent">اللاعبين</span></h2>
+  <p style="color:var(--muted);margin-top:10px;margin-bottom:0" id="playersDesc">تقييمات حقيقية مبنية على الأداء الفعلي في المباريات</p>
+
+  <div class="cards-row reveal">
+    <!-- Card 1 -->
+    <div class="player-card">
+      <div class="card-rating">92</div>
+      <div class="card-pos">ST</div>
+      <div class="card-avatar">⚡</div>
+      <div class="card-name">أحمد الجوهري</div>
+      <div class="card-team">نسور الشمال</div>
+      <div class="card-stats">
+        <div class="cs"><div class="cs-num">18</div><div class="cs-label">GOL</div></div>
+        <div class="cs"><div class="cs-num">7</div><div class="cs-label">AST</div></div>
+        <div class="cs"><div class="cs-num">22</div><div class="cs-label">APP</div></div>
+      </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="player-card" style="background:linear-gradient(145deg,#1a1a2e,#0d0d1a)">
+      <div class="card-rating" style="color:#3742FA">88</div>
+      <div class="card-pos" style="color:#3742FA">GK</div>
+      <div class="card-avatar" style="background:linear-gradient(135deg,#3742FA,#2536e8)">🧤</div>
+      <div class="card-name">خالد المرابط</div>
+      <div class="card-team">الصواعق</div>
+      <div class="card-stats">
+        <div class="cs"><div class="cs-num">12</div><div class="cs-label">CS</div></div>
+        <div class="cs"><div class="cs-num">89%</div><div class="cs-label">SAV</div></div>
+        <div class="cs"><div class="cs-num">20</div><div class="cs-label">APP</div></div>
+      </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="player-card" style="background:linear-gradient(145deg,#2a1a0e,#1a0d08)">
+      <div class="card-rating" style="color:#FFD93D">85</div>
+      <div class="card-pos" style="color:#FFD93D">CAM</div>
+      <div class="card-avatar" style="background:linear-gradient(135deg,#FFD93D,#e5c230)">🎯</div>
+      <div class="card-name">فيصل الزهراني</div>
+      <div class="card-team">الأسود</div>
+      <div class="card-stats">
+        <div class="cs"><div class="cs-num">11</div><div class="cs-label">GOL</div></div>
+        <div class="cs"><div class="cs-num">15</div><div class="cs-label">AST</div></div>
+        <div class="cs"><div class="cs-num">21</div><div class="cs-label">APP</div></div>
+      </div>
+    </div>
+    <!-- Card 4 -->
+    <div class="player-card" style="background:linear-gradient(145deg,#2a0e0e,#1a0808)">
+      <div class="card-rating" style="color:#FF4757">83</div>
+      <div class="card-pos" style="color:#FF4757">CB</div>
+      <div class="card-avatar" style="background:linear-gradient(135deg,#FF4757,#e53845)">🛡️</div>
+      <div class="card-name">منصور القحطاني</div>
+      <div class="card-team">الذئاب</div>
+      <div class="card-stats">
+        <div class="cs"><div class="cs-num">3</div><div class="cs-label">GOL</div></div>
+        <div class="cs"><div class="cs-num">94%</div><div class="cs-label">TKL</div></div>
+        <div class="cs"><div class="cs-num">22</div><div class="cs-label">APP</div></div>
+      </div>
+    </div>
+    <!-- Card 5 -->
+    <div class="player-card">
+      <div class="card-rating">79</div>
+      <div class="card-pos">RW</div>
+      <div class="card-avatar">🚀</div>
+      <div class="card-name">عمر الشهراني</div>
+      <div class="card-team">العقبان</div>
+      <div class="card-stats">
+        <div class="cs"><div class="cs-num">9</div><div class="cs-label">GOL</div></div>
+        <div class="cs"><div class="cs-num">11</div><div class="cs-label">AST</div></div>
+        <div class="cs"><div class="cs-num">19</div><div class="cs-label">APP</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEARBY TEAMS MAP -->
+<div class="map-section" id="nearby">
+  <div>
+    <span class="section-tag" id="nearTag">الفرق القريبة</span>
+    <h2 class="section-title reveal" id="nearTitle">تحدَّ فريقاً<br><span class="accent">الآن!</span></h2>
+    <p style="color:var(--muted);margin-top:10px" id="nearDesc">الفرق المسجلة بالقرب منك جاهزة للمنافسة</p>
+
+    <div class="map-container reveal">
+      <div class="map-visual">
+        <div class="map-bg"></div>
+        <div class="map-grid"></div>
+        <div class="map-pins">
+          <div class="map-pin" style="top:30%;left:40%;animation-delay:0s">
+            <div class="pin-dot" style="background:var(--accent)"></div>
+            <div class="pin-label">📍 أنت هنا</div>
+          </div>
+          <div class="map-pin" style="top:20%;left:60%;animation-delay:0.2s">
+            <div class="pin-dot"></div>
+            <div class="pin-label">🔥 نسور الشمال</div>
+          </div>
+          <div class="map-pin" style="top:55%;left:25%;animation-delay:0.4s">
+            <div class="pin-dot"></div>
+            <div class="pin-label">⚡ الصواعق</div>
+          </div>
+          <div class="map-pin" style="top:40%;left:70%;animation-delay:0.6s">
+            <div class="pin-dot"></div>
+            <div class="pin-label">🦁 الأسود</div>
+          </div>
+          <div class="map-pin" style="top:65%;left:55%;animation-delay:0.8s">
+            <div class="pin-dot"></div>
+            <div class="pin-label">🐺 الذئاب</div>
+          </div>
+          <div class="map-pin" style="top:15%;left:35%;animation-delay:1s">
+            <div class="pin-dot"></div>
+            <div class="pin-label">🦅 العقبان</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nearby-list">
+        <div class="nearby-item">
+          <div class="ni-info">
+            <div class="ni-avatar">🔥</div>
+            <div>
+              <div class="ni-name">نسور الشمال</div>
+              <div class="ni-dist" id="d1">2.3 كم · متاح الجمعة</div>
+            </div>
+          </div>
+          <button class="ni-challenge" onclick="showChallenge('نسور الشمال')" id="chal">تحدَّ</button>
+        </div>
+        <div class="nearby-item">
+          <div class="ni-info">
+            <div class="ni-avatar">⚡</div>
+            <div>
+              <div class="ni-name">الصواعق</div>
+              <div class="ni-dist" id="d2">3.8 كم · متاح السبت</div>
+            </div>
+          </div>
+          <button class="ni-challenge" onclick="showChallenge('الصواعق')" id="chal2">تحدَّ</button>
+        </div>
+        <div class="nearby-item">
+          <div class="ni-info">
+            <div class="ni-avatar">🦁</div>
+            <div>
+              <div class="ni-name">الأسود</div>
+              <div class="ni-dist" id="d3">5.1 كم · متاح الجمعة</div>
+            </div>
+          </div>
+          <button class="ni-challenge" onclick="showChallenge('الأسود')" id="chal3">تحدَّ</button>
+        </div>
+        <div class="nearby-item">
+          <div class="ni-info">
+            <div class="ni-avatar">🐺</div>
+            <div>
+              <div class="ni-name">الذئاب</div>
+              <div class="ni-dist" id="d4">7.2 كم · متاح الأحد</div>
+            </div>
+          </div>
+          <button class="ni-challenge" onclick="showChallenge('الذئاب')" id="chal4">تحدَّ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2 id="ctaTitle">ابدأ مشوارك<br><span style="color:var(--green)">اليوم!</span></h2>
+  <p id="ctaDesc">انضم لآلاف اللاعبين الذين يتنافسون بشكل احترافي في مناطقهم</p>
+  <button class="btn-primary" style="font-size:1.2rem;padding:20px 60px" onclick="openModal('create')" id="ctaBtn">⚽ أنشئ فريقك مجاناً</button>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">⚽ MALAAB</div>
+  <ul class="footer-links">
+    <li><a href="#" id="fAbout">عن المنصة</a></li>
+    <li><a href="#" id="fPrivacy">الخصوصية</a></li>
+    <li><a href="#" id="fTerms">الشروط</a></li>
+    <li><a href="#" id="fContact">تواصل معنا</a></li>
+  </ul>
+  <p class="footer-copy" id="fCopy">© 2025 Malaab · ملاعب. منصة كرة القدم الشعبية.</p>
+</footer>
+
+<!-- MODAL: Create Team -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+
+    <div id="modalContent">
+      <h3 id="modalTitle">🏟️ أنشئ فريقك</h3>
+      <p class="modal-sub" id="modalSub">ابدأ رحلتك نحو البطولة</p>
+
+      <div class="form-group">
+        <label class="form-label" id="lTeamName">اسم الفريق</label>
+        <input class="form-input" id="teamName" placeholder="مثال: نسور الشمال" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lCity">المدينة / المنطقة</label>
+        <input class="form-input" id="city" placeholder="مثال: الرياض - حي النزهة" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lColor">لون الفريق</label>
+        <div class="color-picker-row">
+          <div class="color-dot selected" style="background:#00FF87" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#FF4757" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#3742FA" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#FFD93D" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#FF6B35" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#A29BFE" onclick="selectColor(this)"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lPhone">رقم الجوال (للتواصل)</label>
+        <input class="form-input" id="phone" placeholder="05xxxxxxxx" />
+      </div>
+
+      <button class="form-submit" onclick="submitTeam()" id="submitBtn">⚽ أنشئ الفريق الآن</button>
+    </div>
+
+    <div class="success-msg" id="successMsg">
+      <div class="success-icon">🎉</div>
+      <h3 id="succTitle">تم إنشاء فريقك!</h3>
+      <p id="succDesc">مرحباً بك في عالم ملاعب. فريقك الآن على الخريطة!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Language System
+let currentLang = 'ar';
+
+const translations = {
+  ar: {
+    navCta: 'أنشئ فريقك',
+    badgeText: 'المنصة الأولى لكرة القدم الهواة',
+    heroTitle: 'ملاعب<br><span class="green">MALAAB</span>',
+    heroSub: 'ORGANIZE · COMPETE · DOMINATE',
+    heroDesc: 'أنشئ فريقك، تحدَّ الفرق القريبة منك، وأنشئ دوريات محلية احترافية. كرة القدم الشعبية أصبحت منظمة ومثيرة!',
+    heroBtnCreate: '⚽ أنشئ فريقك الآن',
+    heroBtnChallenge: '⚡ تحدَّ فريقاً',
+    statTeamsLabel: 'فريق مسجل',
+    statMatchesLabel: 'مباراة لُعبت',
+    statLeaguesLabel: 'دوري نشط',
+    featTag: 'الميزات',
+    featTitle: 'كل شيء تحتاجه<br><span class="accent">في مكان واحد</span>',
+    f1t: 'إنشاء الفريق', f1d: 'أنشئ فريقك بالاسم والشعار والألوان الخاصة بك',
+    f2t: 'الفرق القريبة', f2d: 'اكتشف الفرق القريبة من موقعك وتحداها مباشرة',
+    f3t: 'إنشاء الدوريات', f3d: 'أنشئ دوريات محلية بين فرق المنطقة',
+    f4t: 'إحصائيات اللاعبين', f4d: 'تتبع إحصائيات كل لاعب بشكل تفصيلي',
+    f5t: 'مدرب ذكاء اصطناعي', f5d: 'احصل على توصيات تكتيكية مبنية على أداء فريقك',
+    f6t: 'بطاقات FIFA اللاعبين', f6d: 'كل لاعب له بطاقة مميزة بتقييم وإحصائيات',
+    howTag: 'كيف يعمل',
+    howTitle: 'أربع خطوات<br><span class="accent">للبطولة</span>',
+    s1t: 'سجّل وأنشئ', s1d: 'سجّل حساباً وأنشئ فريقك في دقيقتين فقط',
+    s2t: 'أضف اللاعبين', s2d: 'ادعُ أصدقاءك وابنِ تشكيلتك المفضلة',
+    s3t: 'تحدَّ وتنافس', s3d: 'ابحث عن فرق قريبة وأرسل تحديات المباراة',
+    s4t: 'تصدَّر وانتصر', s4d: 'سجل النتائج وتصدر جدول منطقتك',
+    leagTag: 'الدوريات',
+    leagTitle: 'دوري منطقتك<br><span class="accent">بين يديك</span>',
+    leagName: 'دوري المنطقة الشمالية',
+    leagSeason: 'موسم 2025',
+    thTeam: 'الفريق', thW: 'ف', thD: 'ت', thL: 'خ', thPts: 'نقاط',
+    lf1t: 'جدول تلقائي', lf1d: 'يتولى النظام إنشاء جدول المباريات تلقائياً',
+    lf2t: 'نظام النقاط', lf2d: 'فوز = 3، تعادل = 1، خسارة = 0',
+    lf3t: 'إشعارات المباريات', lf3d: 'تذكير قبل المباريات وتحديث النتائج',
+    lf4t: 'حفل التتويج', lf4d: 'البطل يحصل على شهادة رقمية ورتبة منطقة',
+    playersTag: 'اللاعبون',
+    playersTitle: 'بطاقات <span class="accent">اللاعبين</span>',
+    playersDesc: 'تقييمات حقيقية مبنية على الأداء الفعلي',
+    nearTag: 'الفرق القريبة',
+    nearTitle: 'تحدَّ فريقاً<br><span class="accent">الآن!</span>',
+    nearDesc: 'الفرق المسجلة بالقرب منك جاهزة للمنافسة',
+    d1: '2.3 كم · متاح الجمعة', d2: '3.8 كم · متاح السبت',
+    d3: '5.1 كم · متاح الجمعة', d4: '7.2 كم · متاح الأحد',
+    chal: 'تحدَّ', chal2: 'تحدَّ', chal3: 'تحدَّ', chal4: 'تحدَّ',
+    ctaTitle: 'ابدأ مشوارك<br><span style="color:var(--green)">اليوم!</span>',
+    ctaDesc: 'انضم لآلاف اللاعبين الذين يتنافسون بشكل احترافي',
+    ctaBtn: '⚽ أنشئ فريقك مجاناً',
+    fAbout: 'عن المنصة', fPrivacy: 'الخصوصية', fTerms: 'الشروط', fContact: 'تواصل معنا',
+    fCopy: '© 2025 Malaab · ملاعب. منصة كرة القدم الشعبية.',
+    modalTitle: '🏟️ أنشئ فريقك', modalSub: 'ابدأ رحلتك نحو البطولة',
+    lTeamName: 'اسم الفريق', lCity: 'المدينة / المنطقة',
+    lColor: 'لون الفريق', lPhone: 'رقم الجوال',
+    submitBtn: '⚽ أنشئ الفريق الآن',
+    succTitle: 'تم إنشاء فريقك!',
+    succDesc: 'مرحباً بك في عالم ملاعب. فريقك الآن على الخريطة!',
+    notifTitle: 'تحدي جديد!', notifSub: 'فريق قريب منك يبحث عن مباراة',
+    langBtn: 'EN',
+    dir: 'rtl', fontFamily: "'Tajawal', sans-serif"
+  },
+  en: {
+    navCta: 'Create Team',
+    badgeText: 'The #1 Amateur Football Platform',
+    heroTitle: '<span class="green">MALAAB</span><br>Football',
+    heroSub: 'ORGANIZE · COMPETE · DOMINATE',
+    heroDesc: 'Create your team, challenge nearby teams, and run local leagues. Amateur football — organized and exciting!',
+    heroBtnCreate: '⚽ Create Your Team',
+    heroBtnChallenge: '⚡ Challenge a Team',
+    statTeamsLabel: 'Teams Registered',
+    statMatchesLabel: 'Matches Played',
+    statLeaguesLabel: 'Active Leagues',
+    featTag: 'Features',
+    featTitle: 'Everything You Need<br><span class="accent">In One Place</span>',
+    f1t: 'Team Creation', f1d: 'Build your team with custom name, badge, and colors',
+    f2t: 'Nearby Teams', f2d: 'Discover teams near your location and challenge them',
+    f3t: 'Create Leagues', f3d: 'Organize local leagues with automatic scheduling',
+    f4t: 'Player Stats', f4d: 'Track every player\'s goals, assists, appearances and more',
+    f5t: 'AI Coach', f5d: 'Get tactical recommendations based on your team\'s performance',
+    f6t: 'FIFA Player Cards', f6d: 'Every player gets a unique card with ratings and stats',
+    howTag: 'How It Works',
+    howTitle: 'Four Steps<br><span class="accent">To Glory</span>',
+    s1t: 'Register & Create', s1d: 'Sign up and create your team in just two minutes',
+    s2t: 'Add Players', s2d: 'Invite friends and build your dream lineup',
+    s3t: 'Challenge & Compete', s3d: 'Find nearby teams and send match challenges',
+    s4t: 'Top & Win', s4d: 'Record results and lead your region\'s table',
+    leagTag: 'Leagues',
+    leagTitle: 'Your Region\'s League<br><span class="accent">In Your Hands</span>',
+    leagName: 'Northern Region League',
+    leagSeason: 'Season 2025',
+    thTeam: 'Team', thW: 'W', thD: 'D', thL: 'L', thPts: 'Pts',
+    lf1t: 'Auto Schedule', lf1d: 'System generates fixtures automatically',
+    lf2t: 'Points System', lf2d: 'Win = 3, Draw = 1, Loss = 0',
+    lf3t: 'Match Notifications', lf3d: 'Reminders before matches and live result updates',
+    lf4t: 'Champions Ceremony', lf4d: 'Winner gets a digital certificate and regional ranking',
+    playersTag: 'Players',
+    playersTitle: 'Player <span class="accent">Cards</span>',
+    playersDesc: 'Real ratings based on actual match performance',
+    nearTag: 'Nearby Teams',
+    nearTitle: 'Challenge a Team<br><span class="accent">Right Now!</span>',
+    nearDesc: 'Registered teams near you are ready to compete',
+    d1: '2.3 km · Available Friday', d2: '3.8 km · Available Saturday',
+    d3: '5.1 km · Available Friday', d4: '7.2 km · Available Sunday',
+    chal: 'Challenge', chal2: 'Challenge', chal3: 'Challenge', chal4: 'Challenge',
+    ctaTitle: 'Start Your Journey<br><span style="color:var(--green)">Today!</span>',
+    ctaDesc: 'Join thousands of players competing professionally in their regions',
+    ctaBtn: '⚽ Create Your Team Free',
+    fAbout: 'About', fPrivacy: 'Privacy', fTerms: 'Terms', fContact: 'Contact',
+    fCopy: '© 2025 Malaab · ملاعب. The Amateur Football Platform.',
+    modalTitle: '🏟️ Create Your Team', modalSub: 'Start your journey to glory',
+    lTeamName: 'Team Name', lCity: 'City / Region',
+    lColor: 'Team Color', lPhone: 'Phone Number',
+    submitBtn: '⚽ Create Team Now',
+    succTitle: 'Team Created!',
+    succDesc: 'Welcome to Malaab. Your team is now on the map!',
+    notifTitle: 'New Challenge!', notifSub: 'A nearby team is looking for a match',
+    langBtn: 'عربي',
+    dir: 'ltr', fontFamily: "'Barlow Condensed', sans-serif"
+  }
+};
+
+function toggleLang() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  applyLang();
+}
+
+function applyLang() {
+  const t = translations[currentLang];
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = t.dir;
+
+  for (const [id, val] of Object.entries(t)) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = val;
+  }
+
+  // Set input placeholders
+  if (currentLang === 'en') {
+    document.getElementById('teamName').placeholder = 'e.g. Northern Eagles';
+    document.getElementById('city').placeholder = 'e.g. Riyadh - Al Nuzha';
+    document.getElementById('phone').placeholder = '+966 5x xxx xxxx';
+  } else {
+    document.getElementById('teamName').placeholder = 'مثال: نسور الشمال';
+    document.getElementById('city').placeholder = 'مثال: الرياض - حي النزهة';
+    document.getElementById('phone').placeholder = '05xxxxxxxx';
+  }
+}
+
+// Cursor
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursorTrail');
+let mx = 0, my = 0, tx = 0, ty = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx - 10 + 'px';
+  cursor.style.top = my - 10 + 'px';
+});
+
+setInterval(() => {
+  tx += (mx - tx) * 0.15;
+  ty += (my - ty) *.15;
+  trail.style.left = tx - 4 + 'px';
+  trail.style.top = ty - 4 + 'px';
+}, 16);
+
+document.querySelectorAll('button, a, .feature-card, .nearby-item, .player-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '40px';
+    cursor.style.height = '40px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '20px';
+    cursor.style.height = '20px';
+  });
+});
+
+// Counter animation
+function animateCounter(el, target, suffix = '') {
+  let start = 0;
+  const duration = 2000;
+  const step = (timestamp) => {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// Scroll Reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(el => {
+    if (el.isIntersecting) el.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Stat counters
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounter(document.getElementById('statTeams'), 2847, '+');
+      animateCounter(document.getElementById('statMatches'), 18420, '+');
+      animateCounter(document.getElementById('statLeagues'), 340, '+');
+      statsObserver.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+statsObserver.observe(document.querySelector('.hero-stats'));
+
+// Modal
+function openModal(type) {
+  document.getElementById('modal').classList.add('active');
+  document.getElementById('successMsg').style.display = 'none';
+  document.getElementById('modalContent').style.display = 'block';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('active');
+  }
+}
+
+function closeModalBtn() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+function submitTeam() {
+  const name = document.getElementById('teamName').value.trim();
+  if (!name) {
+    document.getElementById('teamName').focus();
+    document.getElementById('teamName').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('teamName').style.borderColor = 'var(--border)', 2000);
+    return;
+  }
+  document.getElementById('modalContent').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'block';
+}
+
+function selectColor(el) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Challenge notification
+function showChallenge(teamName) {
+  const notif = document.getElementById('notification');
+  document.getElementById('notifTitle').textContent = currentLang === 'ar' ? `تحدي لـ ${teamName}!` : `Challenge to ${teamName}!`;
+  document.getElementById('notifSub').textContent = currentLang === 'ar' ? 'تم إرسال التحدي بنجاح ⚡' : 'Challenge sent successfully ⚡';
+  notif.classList.add('show');
+  setTimeout(() => notif.classList.remove('show'), 3500);
+}
+
+// Auto notification demo
+setTimeout(() => {
+  const notif = document.getElementById('notification');
+  notif.classList.add('show');
+  setTimeout(() => notif.classList.remove('show'), 4000);
+}, 3000);
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
